@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KiddieLand - Interactive App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(180deg, #fffcf9 0%, #f4f0ff 100%);
+            --text-main: #333; --text-muted: #555;
+            --blue-border: #9ec5fe; --blue-bg: #e6f2ff;
+            --green-border: #a0e8b7; --green-bg: #e5fdf4;
+            --purple-border: #dcb0ff; --purple-bg: #f5edff;
+            --nav-home: #ff6b6b; --nav-learn: #4dabf7;
+            --nav-play: #51cf66; --nav-stories: #cc5de8;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Nunito', sans-serif; }
+        body { background: var(--bg-gradient); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 20px; flex-grow: 1; width: 100%; }
+        
+        /* HEADER */
+        header { display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px 30px; border-radius: 50px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 40px; }
+        .logo-wrapper { cursor: pointer; display: flex; flex-direction: column; }
+        .logo { font-size: 24px; font-weight: 800; display: flex; align-items: center; gap: 10px; }
+        .logo span:nth-child(2) { color: #ff6b6b; } .logo span:nth-child(3) { color: #fcc419; }
+        .project-tag { font-size: 9px; color: var(--text-muted); font-weight: 800; letter-spacing: 1px; padding-left: 36px; margin-top: -2px; }
+        
+        .nav-links { display: flex; gap: 15px; }
+        .nav-btn { padding: 10px 20px; border-radius: 25px; text-decoration: none; color: white; font-weight: 700; display: flex; align-items: center; gap: 8px; transition: transform 0.2s; border: none; cursor: pointer; }
+        .nav-btn:hover { transform: translateY(-2px); }
+        .btn-home { background-color: var(--nav-home); box-shadow: 0 4px 0 #e03131; }
+        .btn-learn { background-color: var(--nav-learn); box-shadow: 0 4px 0 #228be6; }
+        .btn-play { background-color: var(--nav-play); box-shadow: 0 4px 0 #2b8a3e; }
+        .btn-stories { background-color: var(--nav-stories); box-shadow: 0 4px 0 #9c36b5; }
+        
+        /* VIEWS UTILITY */
+        .view-section { display: none; animation: fadeIn 0.4s ease-in-out; }
+        .view-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* HOME ELEMENTS */
+        .hero { text-align: center; margin-bottom: 50px; }
+        .hero-emojis { font-size: 40px; margin-bottom: 10px; }
+        .hero h1 { font-size: 48px; background: linear-gradient(90deg, #f06595, #845ef7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 15px; }
+        .hero p { font-size: 20px; color: var(--text-muted); font-weight: 600; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; margin-bottom: 30px; }
+        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 25px; margin-bottom: 30px; }
+        .card { background: white; border-radius: 20px; padding: 30px; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.03); border: 3px solid transparent; display: flex; flex-direction: column; align-items: center; }
+        .card-blue { border-color: var(--blue-border); background-color: var(--blue-bg); }
+        .card-green { border-color: var(--green-border); background-color: var(--green-bg); }
+        .card-purple { border-color: var(--purple-border); background-color: var(--purple-bg); }
+        .card-outline-purple { border-color: var(--purple-border); background-color: white; }
+        .card-outline-blue { border-color: var(--blue-border); background-color: white; }
+        .card-title { font-size: 24px; font-weight: 800; margin: 15px 0; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .card-desc { color: var(--text-muted); margin-bottom: 25px; line-height: 1.5; flex-grow: 1; }
+        
+        /* PILLS & LINKS */
+        .pill-container { display: flex; flex-direction: column; gap: 10px; width: 100%; margin-bottom: 25px; }
+        .pill { background: white; padding: 10px 15px; border-radius: 20px; font-weight: 700; font-size: 14px; box-shadow: 0 4px 0 rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center; gap: 8px; width: 80%; margin: 0 auto; border: 2px solid #eee; cursor: pointer; transition: transform 0.1s; }
+        .pill:active { transform: translateY(4px); box-shadow: none; }
+        .explore-link { font-weight: 800; color: var(--text-main); text-decoration: none; display: flex; align-items: center; gap: 5px; cursor: pointer; padding: 10px; border-radius: 10px; transition: background 0.2s; }
+        .explore-link:hover { background: rgba(0,0,0,0.05); }
+        
+        /* ANIMALS & PIANO */
+        .animal-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-top: 20px; }
+        .animal-btn { border-radius: 15px; padding: 15px 5px; display: flex; flex-direction: column; align-items: center; font-weight: 700; cursor: pointer; border: none; box-shadow: 0 4px 0 rgba(0,0,0,0.1); transition: transform 0.1s; }
+        .animal-btn:active { transform: translateY(4px); box-shadow: none; }
+        .animal-btn span { font-size: 30px; margin-bottom: 5px; }
+        .piano-keys { display: flex; justify-content: center; gap: 15px; margin-top: 20px; height: 180px; }
+        .key { width: 60px; border-radius: 10px; color: white; font-weight: 800; display: flex; flex-direction: column; justify-content: flex-end; padding-bottom: 20px; align-items: center; cursor: pointer; box-shadow: 0 6px 0 rgba(0,0,0,0.15); transition: transform 0.1s; border: none; }
+        .key:active { transform: translateY(6px); box-shadow: none; }
+        .key span:first-child { font-size: 24px; margin-bottom: auto; margin-top: 20px; }
+        
+        /* FUN FACT & FOOTER */
+        .fact-card { background: linear-gradient(90deg, #fff3b0, #ffe66d); border-radius: 20px; padding: 30px; text-align: center; border: 3px solid #ffeb3b; margin-bottom: 40px; }
+        .fact-card h3 { color: #d97706; margin-bottom: 10px; font-size: 20px; }
+        .fact-card p { font-size: 18px; font-weight: 600; }
+        footer { background: linear-gradient(90deg, #3b82f6, #ec4899); color: white; text-align: center; padding: 30px; border-radius: 20px 20px 0 0; margin-top: auto; }
+        
+        /* INNER PAGES GENERAL */
+        .page-header { text-align: center; margin-bottom: 20px; }
+        .page-header h1 { font-size: 40px; margin-bottom: 10px; }
+        .back-btn { background: white; border: 2px solid #ddd; padding: 10px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-size: 16px; margin-bottom: 20px; box-shadow: 0 4px 0 #ddd; transition: 0.1s; }
+        .back-btn:active { transform: translateY(4px); box-shadow: none; }
+        .sub-nav { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .sub-nav-btn { padding: 8px 15px; border-radius: 20px; border: 2px solid #ddd; background: white; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .sub-nav-btn.active { background: #eee; border-color: #999; box-shadow: inset 0 3px 5px rgba(0,0,0,0.1); }
+        .game-area { background: white; border-radius: 20px; padding: 40px; text-align: center; border: 3px solid #eee; box-shadow: 0 10px 20px rgba(0,0,0,0.05); max-width: 600px; margin: 0 auto; }
+        
+        /* ================= NEW LEARNING ZONE STYLES ================= */
+        .learn-section { background: white; border-radius: 20px; padding: 25px; margin-bottom: 25px; border: 4px solid #eee; text-align: left; }
+        .learn-section-title { font-size: 24px; font-weight: 800; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        .item-grid { display: flex; flex-wrap: wrap; gap: 12px; }
+        
+        .item-btn { border: none; border-radius: 15px; font-weight: 800; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: transform 0.1s; box-shadow: 0 4px 0 rgba(0,0,0,0.1); color: white; }
+        .item-btn:active { transform: translateY(4px); box-shadow: none; }
+        
+        .item-letter { width: 60px; height: 60px; font-size: 26px; }
+        .item-number { width: 75px; height: 85px; }
+        .item-number .num { font-size: 32px; }
+        .item-number .text { font-size: 14px; opacity: 0.9; }
+        .item-color { width: 95px; height: 95px; }
+        .item-color .emoji { font-size: 24px; margin-bottom: 5px; }
+        .item-color .text { font-size: 16px; }
+        
+        /* Outline style for Shapes */
+        .item-shape { width: 100px; height: 90px; background: white !important; color: #555; border: 3px solid #eee; box-shadow: 0 4px 0 #eee; }
+        .item-shape .emoji { font-size: 30px; margin-bottom: 5px; }
+        .item-shape .text { font-size: 14px; font-weight: 700; }
+
+        /* Section Colors */
+        .ls-colors { border-color: #b2f2bb; } .ls-colors .learn-section-title { color: #2b8a3e; }
+        .ls-shapes { border-color: #eebefa; } .ls-shapes .learn-section-title { color: #9c36b5; }
+        .ls-alphabet { border-color: #ffc9c9; } .ls-alphabet .learn-section-title { color: #fa5252; }
+        .ls-numbers { border-color: #a5d8ff; } .ls-numbers .learn-section-title { color: #228be6; }
+
+        /* Pastel Palette */
+        .c-red { background-color: #ff8787; box-shadow: 0 4px 0 #e03131; }
+        .c-orange { background-color: #ffa94d; box-shadow: 0 4px 0 #e8590c; }
+        .c-yellow { background-color: #ffd43b; box-shadow: 0 4px 0 #f08c00; }
+        .c-green { background-color: #69db7c; box-shadow: 0 4px 0 #2f9e44; }
+        .c-blue { background-color: #74c0fc; box-shadow: 0 4px 0 #1c7ed6; }
+        .c-purple { background-color: #b197fc; box-shadow: 0 4px 0 #845ef7; }
+        .c-pink { background-color: #faa2c1; box-shadow: 0 4px 0 #d6336c; }
+        .c-brown { background-color: #b08d6a; box-shadow: 0 4px 0 #8b6b4a; }
+        .c-grey { background-color: #ced4da; box-shadow: 0 4px 0 #868e96; }
+
+        /* Shape Border Colors */
+        .s-red { border-color: #ff8787; box-shadow: 0 4px 0 #ff8787; }
+        .s-blue { border-color: #74c0fc; box-shadow: 0 4px 0 #74c0fc; }
+        .s-yellow { border-color: #ffd43b; box-shadow: 0 4px 0 #ffd43b; }
+        .s-purple { border-color: #b197fc; box-shadow: 0 4px 0 #b197fc; }
+        .s-pink { border-color: #faa2c1; box-shadow: 0 4px 0 #faa2c1; }
+        .s-cyan { border-color: #3bc9db; box-shadow: 0 4px 0 #3bc9db; }
+        
+        /* PLAY AND STORIES STYLES */
+        .game-prompt { font-size: 28px; font-weight: 800; margin-bottom: 30px; color: #2b8a3e; }
+        .options-grid { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
+        .option-btn { font-size: 50px; background: var(--green-bg); border: 4px solid var(--green-border); border-radius: 20px; width: 100px; height: 100px; cursor: pointer; box-shadow: 0 6px 0 var(--green-border); transition: 0.1s; }
+        .option-btn:active { transform: translateY(6px); box-shadow: none; }
+        .story-text { font-size: 24px; font-weight: 600; color: #555; min-height: 120px; display: flex; align-items: center; justify-content: center; padding: 20px; background: var(--purple-bg); border-radius: 15px; margin-bottom: 25px; line-height: 1.5; }
+        .story-img { font-size: 80px; margin-bottom: 20px; }
+        .control-btn { padding: 10px 25px; border-radius: 20px; border: none; font-size: 18px; font-weight: bold; cursor: pointer; color: white; background: #4dabf7; box-shadow: 0 4px 0 #228be6; transition: 0.1s; }
+        .control-btn:active { transform: translateY(4px); box-shadow: none; }
+
+        @media (max-width: 768px) { .grid-3, .grid-2 { grid-template-columns: 1fr; } header { flex-direction: column; gap: 20px; } .nav-links { flex-wrap: wrap; justify-content: center; } }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <div class="logo-wrapper" onclick="switchTab('home-view')">
+                <div class="logo"><span>🌈</span><span>Kiddie</span><span>Land</span></div>
+                <span class="project-tag">HCIPROJECTRMMC-MAGALONG</span>
+            </div>
+            <nav class="nav-links">
+                <button class="nav-btn btn-home" onclick="switchTab('home-view')">🏠 Home</button>
+                <button class="nav-btn btn-learn" onclick="switchTab('learn-view')">📖 Learn</button>
+                <button class="nav-btn btn-play" onclick="openGame('matching')">🧩 Play</button>
+                <button class="nav-btn btn-stories" onclick="openStory('animals')">📚 Stories</button>
+            </nav>
+        </header>
+
+        <div id="home-view" class="view-section active">
+            <section class="hero">
+                <div class="hero-emojis">🌈 ⭐ 🎈</div>
+                <h1>Welcome to KiddieLand!</h1>
+                <p>A magical place to learn, play, and explore! Click any section<br>below to start your adventure! 🚀</p>
+            </section>
+
+            <section class="grid-3">
+                <div class="card card-blue">
+                    <h2 class="card-title">📚 Learning Zone</h2>
+                    <p class="card-desc">Discover letters, numbers, colors, and shapes!</p>
+                    <div class="pill-container">
+                        <button class="pill" onclick="switchTab('learn-view')">🔤 Alphabet</button>
+                        <button class="pill" onclick="switchTab('learn-view')">🔢 Numbers</button>
+                        <button class="pill" onclick="switchTab('learn-view')">🎨 Colors</button>
+                        <button class="pill" onclick="switchTab('learn-view')">📐 Shapes</button>
+                    </div>
+                </div>
+
+                <div class="card card-green">
+                    <h2 class="card-title">🎮 Activity Center</h2>
+                    <p class="card-desc">Play matching games and test your color knowledge!</p>
+                    <div class="pill-container">
+                        <button class="pill" onclick="openGame('matching')">🎯 Animal Match</button>
+                        <button class="pill" onclick="openGame('colors')">🧠 Color Quiz</button>
+                    </div>
+                </div>
+
+                <div class="card card-purple">
+                    <h2 class="card-title">📖 Story Corner</h2>
+                    <p class="card-desc">Read wonderful stories about animals, nature, and space!</p>
+                    <div class="pill-container">
+                        <button class="pill" onclick="openStory('animals')">🐰 Animal Story</button>
+                        <button class="pill" onclick="openStory('nature')">🌳 Nature Story</button>
+                        <button class="pill" onclick="openStory('space')">🚀 Space Adventure</button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="grid-2">
+                <div class="card card-outline-purple">
+                    <h2 class="card-title" style="color: #9c36b5;">🔊 Animal Sounds</h2>
+                    <p class="card-desc" style="margin-bottom:0;">Click an animal to hear its sound! 🔈</p>
+                    <div class="animal-grid">
+                        <button class="animal-btn bg-orange" onclick="playAnimalSound('cat')"><span>🐱</span>Cat</button>
+                        <button class="animal-btn bg-yellow" onclick="playAnimalSound('dog')"><span>🐶</span>Dog</button>
+                        <button class="animal-btn bg-green" onclick="playAnimalSound('cow')"><span>🐮</span>Cow</button>
+                        <button class="animal-btn bg-yellow" onclick="playAnimalSound('duck')"><span>🦆</span>Duck</button>
+                        <button class="animal-btn bg-pink" onclick="playAnimalSound('pig')"><span>🐷</span>Pig</button>
+                        <button class="animal-btn bg-green" onclick="playAnimalSound('frog')"><span>🐸</span>Frog</button>
+                        <button class="animal-btn bg-yellow" onclick="playAnimalSound('lion')"><span>🦁</span>Lion</button>
+                        <button class="animal-btn bg-blue" onclick="playAnimalSound('bird')"><span>🐦</span>Bird</button>
+                    </div>
+                </div>
+
+                <div class="card card-outline-blue">
+                    <h2 class="card-title" style="color: #228be6;">🎵 Musical Piano</h2>
+                    <p class="card-desc" style="margin-bottom:0;">Press the keys to play music! 🎶</p>
+                    <div class="piano-keys">
+                        <button class="key key-red" onclick="playPianoKey(261.63)"><span>🎵</span>Do<br><small>C</small></button>
+                        <button class="key key-orange" onclick="playPianoKey(293.66)"><span>🎵</span>Re<br><small>D</small></button>
+                        <button class="key key-yellow" onclick="playPianoKey(329.63)"><span>🎵</span>Mi<br><small>E</small></button>
+                        <button class="key key-green" onclick="playPianoKey(349.23)"><span>🎵</span>Fa<br><small>F</small></button>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div id="learn-view" class="view-section">
+            <button class="back-btn" onclick="switchTab('home-view')">🔙 Back to Home</button>
+            
+            <div class="learn-section ls-colors">
+                <div class="learn-section-title">🎨 Colors</div>
+                <div class="item-grid" id="grid-colors"></div>
+            </div>
+
+            <div class="learn-section ls-shapes">
+                <div class="learn-section-title">📐 Shapes</div>
+                <div class="item-grid" id="grid-shapes"></div>
+            </div>
+            
+            <div class="learn-section ls-alphabet">
+                <div class="learn-section-title">🔤 Alphabet</div>
+                <div class="item-grid" id="grid-alphabet"></div>
+            </div>
+
+            <div class="learn-section ls-numbers">
+                <div class="learn-section-title">🔢 Numbers</div>
+                <div class="item-grid" id="grid-numbers"></div>
+            </div>
+        </div>
+
+        <div id="play-view" class="view-section">
+            <button class="back-btn" onclick="switchTab('home-view')">🔙 Back to Home</button>
+            <div class="page-header">
+                <h1 style="color: #2b8a3e;">🎮 Activity Center</h1>
+                <div class="sub-nav" id="play-nav">
+                    <button class="sub-nav-btn" onclick="openGame('matching')">🎯 Animal Match</button>
+                    <button class="sub-nav-btn" onclick="openGame('colors')">🧠 Color Quiz</button>
+                </div>
+            </div>
+            <div class="game-area" style="border-color: var(--green-border);">
+                <div class="game-prompt" id="game-prompt">Loading...</div>
+                <div class="options-grid" id="game-options"></div>
+                <button class="control-btn" style="background:#2b8a3e; box-shadow: 0 4px 0 #186429; margin-top: 30px;" onclick="startCurrentGame()">🔄 Play Again</button>
+            </div>
+        </div>
+
+        <div id="stories-view" class="view-section">
+            <button class="back-btn" onclick="switchTab('home-view')">🔙 Back to Home</button>
+            <div class="page-header">
+                <h1 style="color: #9c36b5;">📖 Story Time</h1>
+                <div class="sub-nav" id="stories-nav">
+                    <button class="sub-nav-btn" onclick="openStory('animals')">🐰 Animal Story</button>
+                    <button class="sub-nav-btn" onclick="openStory('nature')">🌳 Nature Story</button>
+                    <button class="sub-nav-btn" onclick="openStory('space')">🚀 Space Adventure</button>
+                </div>
+            </div>
+            <div class="game-area" style="border-color: var(--purple-border);">
+                <h2 id="story-title" style="color:#9c36b5; margin-bottom: 15px;">Title</h2>
+                <div class="story-img" id="story-img">🐻</div>
+                <div class="story-text" id="story-text">Loading...</div>
+                <div class="controls">
+                    <button class="control-btn" style="background:#cc5de8; box-shadow: 0 4px 0 #9c36b5;" onclick="prevPage()">⬅️ Back</button>
+                    <button class="control-btn" style="background:#cc5de8; box-shadow: 0 4px 0 #9c36b5;" onclick="nextPage()">Next ➡️</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <h2>🌟 Keep Learning, Keep Playing! 🌟</h2>
+        <p>Made with ❤️ for curious little minds</p>
+    </footer>
+
+    <script>
+        // --- GENERAL APP LOGIC ---
+        function switchTab(tabId) {
+            document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            window.scrollTo(0, 0);
+            window.speechSynthesis.cancel();
+        }
+
+        function speakWord(text) {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 0.9;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function updateSubNavUI(navId, index) {
+            const btns = document.getElementById(navId).children;
+            for(let i=0; i<btns.length; i++) btns[i].classList.remove('active');
+            if(btns[index]) btns[index].classList.add('active');
+        }
+
+        // ================= 1. DYNAMIC LEARNING ZONE GENERATOR =================
+        const palette = ['c-red', 'c-orange', 'c-yellow', 'c-green', 'c-blue', 'c-purple', 'c-pink'];
+        
+        function buildLearningZone() {
+            // 1. Build Alphabet
+            const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+            let alphaHTML = '';
+            letters.forEach((l, i) => {
+                // Pass l.toLowerCase() to speakWord to prevent it saying "Capital A"
+                alphaHTML += `<button class="item-btn item-letter ${palette[i % palette.length]}" onclick="speakWord('${l.toLowerCase()}')">${l}</button>`;
+            });
+            document.getElementById('grid-alphabet').innerHTML = alphaHTML;
+
+            // 2. Build Numbers
+            const numbers = [
+                {n: '0', t: 'Zero'}, {n: '1', t: 'One'}, {n: '2', t: 'Two'}, {n: '3', t: 'Three'}, {n: '4', t: 'Four'},
+                {n: '5', t: 'Five'}, {n: '6', t: 'Six'}, {n: '7', t: 'Seven'}, {n: '8', t: 'Eight'}, {n: '9', t: 'Nine'}
+            ];
+            let numHTML = '';
+            numbers.forEach((num, i) => {
+                let colorClass = i === 0 ? 'c-grey' : palette[(i-1) % palette.length];
+                numHTML += `<button class="item-btn item-number ${colorClass}" onclick="speakWord('${num.t}')"><span class="num">${num.n}</span><span class="text">${num.t}</span></button>`;
+            });
+            document.getElementById('grid-numbers').innerHTML = numHTML;
+
+            // 3. Build Colors
+            const colors = [
+                {e: '🍎', t: 'Red', c: 'c-red'}, {e: '🍊', t: 'Orange', c: 'c-orange'}, {e: '⭐', t: 'Yellow', c: 'c-yellow'},
+                {e: '🌿', t: 'Green', c: 'c-green'}, {e: '🌊', t: 'Blue', c: 'c-blue'}, {e: '🍇', t: 'Purple', c: 'c-purple'},
+                {e: '🌸', t: 'Pink', c: 'c-pink'}, {e: '🐻', t: 'Brown', c: 'c-brown'}
+            ];
+            let colorHTML = '';
+            colors.forEach(col => {
+                colorHTML += `<button class="item-btn item-color ${col.c}" onclick="speakWord('${col.t}')"><span class="emoji">${col.e}</span><span class="text">${col.t}</span></button>`;
+            });
+            document.getElementById('grid-colors').innerHTML = colorHTML;
+
+            // 4. Build Shapes
+            const shapes = [
+                {e: '⭕', t: 'Circle', c: 's-red'}, {e: '🟦', t: 'Square', c: 's-blue'}, {e: '🔺', t: 'Triangle', c: 's-yellow'},
+                {e: '⭐', t: 'Star', c: 's-purple'}, {e: '❤️', t: 'Heart', c: 's-pink'}, {e: '💎', t: 'Diamond', c: 's-cyan'}
+            ];
+            let shapeHTML = '';
+            shapes.forEach(sh => {
+                shapeHTML += `<button class="item-btn item-shape ${sh.c}" onclick="speakWord('${sh.t}')"><span class="emoji">${sh.e}</span><span class="text">${sh.t}</span></button>`;
+            });
+            document.getElementById('grid-shapes').innerHTML = shapeHTML;
+        }
+        
+        buildLearningZone();
+
+        // ================= 2. ACTIVITY CENTER LOGIC =================
+        const gameModes = {
+            matching: [ { name: "Dog", emoji: "🐶" }, { name: "Cat", emoji: "🐱" }, { name: "Pig", emoji: "🐷" }, { name: "Frog", emoji: "🐸" } ],
+            colors: [ { name: "Red", emoji: "🔴" }, { name: "Blue", emoji: "🔵" }, { name: "Green", emoji: "🟢" }, { name: "Yellow", emoji: "🟡" } ]
+        };
+        let currentGameMode = 'matching';
+        let targetItem;
+
+        function openGame(mode) {
+            switchTab('play-view');
+            currentGameMode = mode;
+            updateSubNavUI('play-nav', ['matching', 'colors'].indexOf(mode));
+            startCurrentGame();
+        }
+
+        function startCurrentGame() {
+            const items = gameModes[currentGameMode];
+            targetItem = items[Math.floor(Math.random() * items.length)];
+            const promptText = `Find the ${targetItem.name}!`;
+            document.getElementById('game-prompt').innerText = promptText;
+            speakWord(promptText);
+
+            const optionsContainer = document.getElementById('game-options');
+            optionsContainer.innerHTML = '';
+            [...items].sort(() => 0.5 - Math.random()).forEach(item => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = item.emoji;
+                btn.onclick = () => checkGameAnswer(item.name);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function checkGameAnswer(selectedName) {
+            if (selectedName === targetItem.name) {
+                document.getElementById('game-prompt').innerText = "🎉 Correct! Great job! 🎉";
+                speakWord("Correct! Great job!");
+                setTimeout(startCurrentGame, 2000);
+            } else {
+                document.getElementById('game-prompt').innerText = "Oops! Try again! 🤔";
+                speakWord("Oops! Try again!");
+            }
+        }
+
+
+        // ================= 3. STORY CORNER LOGIC =================
+        const storiesData = {
+            animals: { title: "The Hungry Little Bear", pages: [ { text: "Once upon a time, there was a little bear who loved to explore the forest.", emoji: "🐻🌲" }, { text: "One day, his tummy started to rumble. He was very hungry!", emoji: "🐻💭🍯" }, { text: "He found a big beehive full of honey and ate until he fell asleep. The End!", emoji: "🍯💤" } ] },
+            nature: { title: "The Little Seed", pages: [ { text: "A tiny seed was planted in the soft, warm dirt.", emoji: "🌱🪨" }, { text: "The sun shined brightly, and the rain gave the seed a big drink of water.", emoji: "☀️🌧️" }, { text: "Slowly, it grew into a beautiful, tall flower! The End!", emoji: "🌻✨" } ] },
+            space: { title: "Blast Off!", pages: [ { text: "Astronaut Alex climbed into the big red rocket ship.", emoji: "🧑‍🚀🚀" }, { text: "3... 2... 1... Blast off! The rocket zoomed past the stars.", emoji: "✨🚀✨" }, { text: "Alex waved to the moon and safely flew back home. The End!", emoji: "🌕👋" } ] }
+        };
+        let currentStory = 'animals', currentStoryPage = 0;
+
+        function openStory(storyId) {
+            switchTab('stories-view');
+            currentStory = storyId; currentStoryPage = 0;
+            updateSubNavUI('stories-nav', ['animals', 'nature', 'space'].indexOf(storyId));
+            document.getElementById('story-title').innerText = storiesData[currentStory].title;
+            updateStoryPage();
+        }
+
+        function updateStoryPage() {
+            const pageData = storiesData[currentStory].pages[currentStoryPage];
+            document.getElementById('story-text').innerText = pageData.text;
+            document.getElementById('story-img').innerText = pageData.emoji;
+            speakWord(pageData.text);
+        }
+
+        function nextPage() { if(currentStoryPage < storiesData[currentStory].pages.length - 1) { currentStoryPage++; updateStoryPage(); } }
+        function prevPage() { if(currentStoryPage > 0) { currentStoryPage--; updateStoryPage(); } }
+
+        // ================= 4. PIANO & ANIMAL SOUNDS =================
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx;
+        function playPianoKey(freq) {
+            if (!audioCtx) audioCtx = new AudioContext();
+            const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+            osc.type = 'sine'; osc.frequency.value = freq;
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); gain.gain.setValueAtTime(1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 1); osc.stop(audioCtx.currentTime + 1);
+        }
+
+        const animalNoises = { cat: { t: "Meow!", p: 1.6 }, dog: { t: "Woof!", p: 0.8 }, cow: { t: "Mooooo!", p: 0.3 }, duck: { t: "Quack quack!", p: 1.2 }, pig: { t: "Oink oink!", p: 0.5 }, frog: { t: "Ribbit!", p: 0.4 }, lion: { t: "Roarrrr!", p: 0.1 }, bird: { t: "Tweet tweet!", p: 2.0 } };
+        function playAnimalSound(a) {
+            window.speechSynthesis.cancel();
+            if(animalNoises[a]) { const u = new SpeechSynthesisUtterance(animalNoises[a].t); u.pitch = animalNoises[a].p; window.speechSynthesis.speak(u); }
+        }
+    </script>
+</body>
+</html>
